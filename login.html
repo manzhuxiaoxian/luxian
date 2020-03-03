@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>登录</title>
+  <script type="text/javascript">
+    !function (e, n) { "object" == typeof exports && "undefined" != typeof module ? n() : "function" == typeof define && define.amd ? define(n) : n() }(0, function () { "use strict"; function e(e) { var n = this.constructor; return this.then(function (t) { return n.resolve(e()).then(function () { return t }) }, function (t) { return n.resolve(e()).then(function () { return n.reject(t) }) }) } function n(e) { return !(!e || "undefined" == typeof e.length) } function t() { } function o(e) { if (!(this instanceof o)) throw new TypeError("Promises must be constructed via new"); if ("function" != typeof e) throw new TypeError("not a function"); this._state = 0, this._handled = !1, this._value = undefined, this._deferreds = [], c(e, this) } function r(e, n) { for (; 3 === e._state;)e = e._value; 0 !== e._state ? (e._handled = !0, o._immediateFn(function () { var t = 1 === e._state ? n.onFulfilled : n.onRejected; if (null !== t) { var o; try { o = t(e._value) } catch (r) { return void f(n.promise, r) } i(n.promise, o) } else (1 === e._state ? i : f)(n.promise, e._value) })) : e._deferreds.push(n) } function i(e, n) { try { if (n === e) throw new TypeError("A promise cannot be resolved with itself."); if (n && ("object" == typeof n || "function" == typeof n)) { var t = n.then; if (n instanceof o) return e._state = 3, e._value = n, void u(e); if ("function" == typeof t) return void c(function (e, n) { return function () { e.apply(n, arguments) } }(t, n), e) } e._state = 1, e._value = n, u(e) } catch (r) { f(e, r) } } function f(e, n) { e._state = 2, e._value = n, u(e) } function u(e) { 2 === e._state && 0 === e._deferreds.length && o._immediateFn(function () { e._handled || o._unhandledRejectionFn(e._value) }); for (var n = 0, t = e._deferreds.length; t > n; n++)r(e, e._deferreds[n]); e._deferreds = null } function c(e, n) { var t = !1; try { e(function (e) { t || (t = !0, i(n, e)) }, function (e) { t || (t = !0, f(n, e)) }) } catch (o) { if (t) return; t = !0, f(n, o) } } var a = setTimeout; o.prototype["catch"] = function (e) { return this.then(null, e) }, o.prototype.then = function (e, n) { var o = new this.constructor(t); return r(this, new function (e, n, t) { this.onFulfilled = "function" == typeof e ? e : null, this.onRejected = "function" == typeof n ? n : null, this.promise = t }(e, n, o)), o }, o.prototype["finally"] = e, o.all = function (e) { return new o(function (t, o) { function r(e, n) { try { if (n && ("object" == typeof n || "function" == typeof n)) { var u = n.then; if ("function" == typeof u) return void u.call(n, function (n) { r(e, n) }, o) } i[e] = n, 0 == --f && t(i) } catch (c) { o(c) } } if (!n(e)) return o(new TypeError("Promise.all accepts an array")); var i = Array.prototype.slice.call(e); if (0 === i.length) return t([]); for (var f = i.length, u = 0; i.length > u; u++)r(u, i[u]) }) }, o.resolve = function (e) { return e && "object" == typeof e && e.constructor === o ? e : new o(function (n) { n(e) }) }, o.reject = function (e) { return new o(function (n, t) { t(e) }) }, o.race = function (e) { return new o(function (t, r) { if (!n(e)) return r(new TypeError("Promise.race accepts an array")); for (var i = 0, f = e.length; f > i; i++)o.resolve(e[i]).then(t, r) }) }, o._immediateFn = "function" == typeof setImmediate && function (e) { setImmediate(e) } || function (e) { a(e, 0) }, o._unhandledRejectionFn = function (e) { void 0 !== console && console && console.warn("Possible Unhandled Promise Rejection:", e) }; var l = function () { if ("undefined" != typeof self) return self; if ("undefined" != typeof window) return window; if ("undefined" != typeof global) return global; throw Error("unable to locate global object") }(); "Promise" in l ? l.Promise.prototype["finally"] || (l.Promise.prototype["finally"] = e) : l.Promise = o });
+  </script>
+  <script type="text/javascript">
+    (function (doc, win) {
+
+      // html元素字体
+      // 这里基础字体设置为10在uc, WX上没效果,  不知道为什么
+      // 设置为10时, dpr=1的手机, 宽度360, 计算出来html的字体大小为5px, 可能是字体太小了
+      // 尽量设置大一些, 这样避免12px字体大小的限制
+      var _rootFontSize = window._rootFontSize || 100;
+
+      // 默认不支持缩放
+      var _remMetaScalable = typeof window._remMetaScalable === 'undefined'
+        ? false
+        : !!window._remMetaScalable;
+
+      var docEl = doc.documentElement,
+        isIOS = navigator.userAgent.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/),
+
+        // 只针对IOS设备
+
+        // 计算缩放比
+
+        // 检测支持的"缩放"事件
+        resizeEvt = 'orientationchange' in window ? 'orientationchange' : 'resize';
+
+      // 被iframe引用时，禁止缩放
+
+      var metaEl = doc.createElement('meta');
+      metaEl.name = 'viewport';
+      var metaElContent = 'width=device-width, ';
+
+      // 支持缩放
+      // 缩放/旋转设备检测函数
+      var recalc = function () {
+        var width = docEl.clientWidth;
+
+        // 750为设计用的宽度, 比如它以iphone6标准(宽750)
+        // 此时, 按照设计稿的尺寸写就可以了
+        // 如: 设计稿为100px, 那么就写4rem(100 / 25), 25是自己设置的
+        // 也可以设置成100, 这样就写100px就写1rem
+        window['baseFontSize'] = _rootFontSize * (width / 1920);
+        docEl.style.fontSize = _rootFontSize * (width / 1920) + 'px';
+      };
+      recalc();
+
+      if (!doc.addEventListener) return;
+      win.addEventListener(resizeEvt, recalc, false);
+    })(document, window);
+  </script>
+
+</head>
+<style type="text/css">
+  html,
+  body {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p,
+  dl,
+  dt,
+  dd,
+  figure {
+    padding: 0;
+    margin: 0;
+  }
+
+  ul,
+  li {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  a {
+    text-decoration: none;
+    color: #2c3e50;
+  }
+
+  .clearfix {
+    display: block;
+    zoom: 1;
+  }
+
+  .clearfix:after {
+    content: " ";
+    display: block;
+    font-size: 0;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .auto-center-transform {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+<style type="text/css">
+  .page_login {
+    width: 100%;
+    height: 100%;
+    font-size: 14px;
+  }
+
+  .page_bg {
+    background: url('./images/ig_bg.png') center no-repeat;
+    background-size: cover;
+    width: 100%;
+    height: 100%;
+  }
+
+  .login_box {
+    width: 6.16rem;
+    height: 7.16rem;
+    padding: 0 .94rem;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 10px;
+    position: absolute;
+    right: 2.9rem;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+  }
+
+  .logo {
+    width: 1.2rem;
+    height: .5rem;
+    margin-top: .6rem;
+    background: url('./images/logo.png')no-repeat center;
+    background-size: contain;
+  }
+
+  .title {
+    font-size: 0.24rem;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+    line-height: .33rem;
+    margin-top: .14rem;
+  }
+
+  .form {
+    margin-top: .40rem;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .input_cell {
+    margin-bottom: .24rem;
+  }
+
+  .input_cell .label {
+    font-size: 14px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(51, 51, 51, 1);
+    line-height: 20px;
+    margin-bottom: 6px;
+  }
+
+  .input_cell .input {
+    position: relative;
+  }
+
+  .input_cell input {
+    background: rgba(247, 247, 247, 1);
+    border: 1px solid rgba(230, 230, 230, 1);
+    height: .56rem;
+    padding-left: .54rem;
+    border-radius: 5px;
+    width: 4.28rem;
+    box-sizing: border-box;
+  }
+
+  .input_cell .icon {
+    position: absolute;
+    left: 14px;
+    width: .3rem;
+    height: .3rem;
+    top: .13rem;
+    display: inline-block;
+  }
+
+  .input_cell .icon_account {
+    background: url("./images/icon_account.png")no-repeat center;
+    background-size: cover;
+  }
+
+  .input_cell .icon_password {
+    background: url("./images/icon_password.png")no-repeat center;
+    background-size: cover;
+  }
+
+  .input_cell .icon_auth {
+    background: url("./images/icon_verification.png")no-repeat center;
+    background-size: cover;
+  }
+
+  .input_cell_auth .input {
+    display: flex;
+  }
+
+  .input_cell .input_auth {
+    margin-right: 20px;
+  }
+
+  .auth_pic {
+    flex: 1;
+    height: .54rem;
+    border: 1px solid rgba(151, 151, 151, 1);
+    cursor: pointer;
+  }
+
+  .input_cell_auth .input_auth input {
+    width: 2.90rem;
+  }
+
+  .radio_remenber {
+    margin-bottom: .3rem;
+  }
+
+  .radio_remenber input {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    vertical-align: middle;
+    border: #ccc;
+    cursor: pointer;
+  }
+
+  .err_msg {
+    color: red;
+    font-size: 12px;
+    margin-top: -0.2rem;
+    margin-bottom: 0.04rem;
+    display: none;
+  }
+
+  .login_btn {
+    display: block;
+    border: none;
+    width: 100%;
+    margin-bottom: .8rem;
+    background-color: rgba(153, 214, 84, 1);
+    color: #fff;
+    font-size: .24rem;
+    text-align: center;
+    height: .56rem;
+    line-height: .56rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+</style>
+
+<body>
+  <div class="page_login">
+    <div class="page_bg"></div>
+    <div class="login_box">
+      <div class="logo"></div>
+      <div class="title">第三方登录系统</div>
+      <div class="form">
+        <div class="input_cell">
+          <div class="label">用户名</div>
+          <div class="input"><input type="text" name="userName" id="user_name" placeholder="请输入工号"><span
+              class="icon icon_account"></span></div>
+        </div>
+        <div class="input_cell">
+          <div class="label">密码</div>
+          <div class="input"><input type="password" name="passWord" id="pass_word" placeholder="请输入密码"><span
+              class="icon icon_password"></span></div>
+        </div>
+        <div class="input_cell input_cell_auth">
+          <div class="label">验证码</div>
+          <div class="input">
+            <div class="input_auth">
+              <input type="text" name="auth" id="auth" placeholder="请输入验证码"><span class="icon icon_auth"></span>
+            </div>
+            <div class="auth_pic" id="auth_pic"><img src="" id="auth_img"></div>
+          </div>
+        </div>
+        <div class="radio_remenber">
+          <input type="checkbox" name="remenber" id="remenber">记住一周
+        </div>
+        <input type="hidden" name="rander" id="rander">
+        <div class="err_msg" id="err_msg">登录失败</div>
+        <div class="login_btn" id="login_btn">登录</div>
+      </div>
+    </div>
+  </div>
+</body>
+<script type="text/javascript">
+  class Ajax {
+    constructor() {
+      this.url = '';
+    }
+    createXMLHttpRequest() {
+      var xmlHttp;
+      if (window.XMLHttpRequest) {
+        xmlHttp = new XMLHttpRequest();
+        if (xmlHttp.overrideMimeType) {
+          xmlHttp.overrideMimeType('text/xml');
+        }
+      } else if (window.ActiveXObject) {
+        try {
+          xmlHttp = new ActiveXObject('Msxml2.XMLHTTP');
+        } catch (e) {
+          xmlHttp = new ActiveXObject('Microsoft.XMLHTTP');
+        }
+      }
+      xmlHttp.withCredentials = true;
+      return xmlHttp;
+    }
+    get(param) {
+      if (!param || !param.url) {
+        return;
+      }
+      var xmlHttp = this.createXMLHttpRequest();
+      var url = param.url;
+      var data = param.data || {};
+      var strTag = '',
+        dataStr = '';
+      for (var i in data) {
+        dataStr +=
+          strTag + encodeURIComponent(i) + '=' + encodeURIComponent(data[i]);
+        if (!strTag) {
+          strTag = '&';
+        }
+      }
+      url += /\?/.test(url) ? dataStr : '?' + dataStr;
+      xmlHttp.open('GET', url, true);
+      xmlHttp.send();
+      return this.sendCallBack(xmlHttp);
+    }
+    post(param) {
+      if (!param || !param.url) {
+        return;
+      }
+      var xmlHttp = this.createXMLHttpRequest();
+      var url = param.url;
+      var data = param.data;
+      xmlHttp.open('POST', url, true);
+      xmlHttp.setRequestHeader('Content-Type', 'application/json');
+      xmlHttp.send(JSON.stringify(data));
+      return this.sendCallBack(xmlHttp);
+    }
+    sendCallBack(xmlHttp) {
+      return new Promise((resolve, reject) => {
+        xmlHttp.onload = e => {
+          if ((xmlHttp.status >= 200 && xmlHttp.status < 300) || xmlHttp.status == 304) {
+            if (JSON.parse(xmlHttp.responseText).meta.success) {
+              resolve(xmlHttp.responseText)
+            } else {
+              console.log(e);
+              reject(xmlHttp.responseText || e)
+            }
+          } else {
+            reject(xmlHttp.responseText || e)
+          }
+        };
+        xmlHttp.onerror = e => {
+          reject(xmlHttp.responseText || e)
+        }
+      })
+    }
+  }
+  var ajax = new Ajax();
+  function getAuth() {
+    ajax.get({
+      url: ''
+    }).then(res => {
+      if (res && res.data.success) {
+        // 获取验证码图片base64？--
+        var authImg = document.getElementById('auth_img');
+        authImg.src = res.data.img
+        // 给隐藏的随机字符串赋值
+        var randerDom = document.getElementById('rander');
+        randerDom.value = res.data.randerStr;
+      }
+    }, rej => {
+      // 请求图片失败
+      console.log('验证码图片请求失败。。');
+    })
+  }
+  function submit() {
+    var data = {
+      userName: document.getElementById('user_name').value,
+      passWord: document.getElementById('pass_word').value,
+      auth: document.getElementById('auth').value,
+      render: document.getElementById('rander').value,
+      remenber: document.getElementById('remenber').checked // true,false
+    }
+    var url = '';
+    var param = {
+      url: '',
+      data: data
+    }
+    console.log('传参：', JSON.stringify(data));
+    ajax.post(param).then(res => {
+      console.log('登录成功')
+      var msg = document.getElementById('err_msg')
+      msg.innerText = '';
+      msg.style.display = 'none';
+    }, rej => {
+      var msg = document.getElementById('err_msg')
+      msg.innerText = '登录失败';
+      msg.style.display = 'block';
+      // 登录异常，刷新验证码
+      getAuth()
+    })
+  }
+  getAuth()
+  document.getElementById('auth_pic').onclick = function () {
+    // 监听验证码点击事件，更新验证码，更新随机串
+    getAuth();
+  }
+  document.getElementById('login_btn').onclick = function () {
+    submit();
+  }
+</script>
+
+</html>
